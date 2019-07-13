@@ -53,6 +53,7 @@ ppm2_sv_flight_nocheck                   : 0        : , "sv", "nf", "rep", "demo
 ppm2_sv_flightdmg                        : 1        : , "sv", "nf", "rep", "demo", "lua_server" : Damage players in flight
 ppm2_sv_new_ragdolls                     : 1        : , "sv", "nf", "rep", "demo", "lua_server" : Enable new ragdolls
 ppm2_sv_newhull                          : 1        : , "sv", "nf", "rep", "demo", "lua_server" : Use proper collision box for ponies. Slightly affects jump mechanics. When disabled, unexpected behaviour could happen.
+ppm2_sv_no_viewoffset_mod                     : 1        : , "sv", "nf", "rep", "demo", "lua_server" :  disable player ViewOffset modification based on model size
 ppm2_sv_ragdoll_damage                   : 1        : , "sv", "nf", "demo", "lua_server" : Should death ragdoll cause damage?
 ppm2_sv_ragdoll_physgun                  : 1        : , "sv", "nf", "rep", "demo", "lua_server" : Allow physgun usage on player death ragdolls
 ppm2_sv_ragdoll_toolgun                  : 0        : , "sv", "nf", "rep", "demo", "lua_server" : Allow toolgun usage on player death ragdolls
@@ -116,6 +117,7 @@ ppm2_sv_flight_nocheck                   : 0        : , "nf", "rep", "demo", "se
 ppm2_sv_flightdmg                        : 1        : , "nf", "rep", "demo", "server_can_execute", "cl", "lua_client" : Damage players in flight
 ppm2_sv_new_ragdolls                     : 1        : , "nf", "rep", "demo", "server_can_execute", "cl", "lua_client" : Enable new ragdolls
 ppm2_sv_newhull                          : 1        : , "nf", "rep", "demo", "server_can_execute", "cl", "lua_client" : Use proper collision box for ponies. Slightly affects jump mechanics. When disabled, unexpected behaviour could happen.
+ppm2_sv_no_viewoffset_mod                     : 1        : , "nf", "rep", "demo", "server_can_execute", "cl", "lua_client" :  disable player ViewOffset modification based on model size
 ppm2_sv_ragdoll_physgun                  : 1        : , "nf", "rep", "demo", "server_can_execute", "cl", "lua_client" : Allow physgun usage on player death ragdolls
 ppm2_sv_ragdoll_toolgun                  : 0        : , "nf", "rep", "demo", "server_can_execute", "cl", "lua_client" : Allow toolgun usage on player death ragdolls
 --------------
