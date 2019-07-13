@@ -2,6 +2,10 @@ local USE_NEW_HULL = CreateConVar('ppm2_sv_newhull', '1', {
   FCVAR_NOTIFY,
   FCVAR_REPLICATED
 }, 'Use proper collision box for ponies. Slightly affects jump mechanics. When disabled, unexpected behaviour could happen.')
+local NO_VO_MOD = CreateConVar('ppm2_sv_no_viewoffset_mod', '1', {
+  FCVAR_NOTIFY,
+  FCVAR_REPLICATED
+}, 'Do not mod the view offset')
 local ALLOW_TO_MODIFY_SCALE = PPM2.ALLOW_TO_MODIFY_SCALE
 local PonySizeController
 do
@@ -48,6 +52,9 @@ do
     AllowResize = function(self)
       return not self.controller:IsNetworked() or ALLOW_TO_MODIFY_SCALE:GetBool()
     end,
+    DisallowViewOffsetMod = function(self)
+      return not self.controller:IsNetworked() or NO_VO_MOD:GetBool()
+    end,
     DataChanges = function(self, state)
       if not IsValid(self:GetEntity()) then
         return 
@@ -64,13 +71,17 @@ do
       end
       if state:GetKey() == 'NeckSize' then
         self:ModifyNeck()
-        self:ModifyViewOffset()
+         if not  self:DisallowViewOffsetMod() then
+            self:ModifyViewOffset()
+         end
       end
       if state:GetKey() == 'LegsSize' then
         self:ModifyLegs()
         self:ModifyHull()
-        return self:ModifyViewOffset()
-      end
+        if not self:DisallowViewOffsetMod() then
+           return self:ModifyViewOffset()
+           end
+        end
     end,
     ResetViewOffset = function(self, ent)
       if ent == nil then
@@ -133,7 +144,9 @@ do
         self:ResetHulls(ent)
         self:ResetJumpHeight(ent)
       end
-      self:ResetViewOffset(ent)
+      if not self:DisallowViewOffsetMod() then
+         self:ResetViewOffset(ent)
+      end
       self:ResetModelScale(ent)
       if self.validSkeleton then
         self:ResetNeck(ent)
@@ -400,7 +413,9 @@ do
         self:ModifyHull(ent)
         self:ModifyJumpHeight(ent)
       end
-      self:ModifyViewOffset(ent)
+      if not self:DisallowViewOffsetMod() then
+         self:ModifyViewOffset(ent)
+      end
       self:ModifyModelScale(ent)
       if CLIENT and self.lastPAC3BoneReset < RealTimeL() then
         self:ModifyNeck(ent)
@@ -634,6 +649,17 @@ ppm2_sv_allow_resize = function()
     end
   end
 end
+local ppm2_sv_no_viewoffset_mod
+ppm2_sv_no_viewoffset_mod = function()
+  local AVOM = GetConVar( "ppm2_sv_no_viewoffset_mod" )
+  if tobool(AVOM)  then
+     for k,v in pairs(player.GetAll()) do
+       v:SetViewOffset(Vector( 0,0,64 ))
+       v:SetViewOffsetDucked(Vector( 0,0,28 ))
+     end
+  end
+end
+cvars.AddChangeCallback('ppm2_sv_no_viewoffset_mod', ppm2_sv_no_viewoffset_mod, '')
 cvars.AddChangeCallback('ppm2_sv_allow_resize', ppm2_sv_allow_resize, 'PPM2.Scale')
 PPM2.GetSizeController = function(model)
   if model == nil then
