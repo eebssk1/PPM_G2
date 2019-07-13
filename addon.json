@@ -1,0 +1,9 @@
+{
+    "title"     :   "PPM/2 - Pony Player Models V2 E",
+    "type"      :   "model",
+    "tags"      :   ["cartoon", "roleplay"],
+    "ignore"    :   [
+        "README.md",
+        "LICENSE"
+    ]
+}
