@@ -71,17 +71,13 @@ do
       end
       if state:GetKey() == 'NeckSize' then
         self:ModifyNeck()
-         if not  self:DisallowViewOffsetMod() then
-            self:ModifyViewOffset()
-         end
+        self:ModifyViewOffset()
       end
       if state:GetKey() == 'LegsSize' then
         self:ModifyLegs()
         self:ModifyHull()
-        if not self:DisallowViewOffsetMod() then
-           return self:ModifyViewOffset()
-           end
-        end
+        return self:ModifyViewOffset()
+      end
     end,
     ResetViewOffset = function(self, ent)
       if ent == nil then
@@ -144,9 +140,7 @@ do
         self:ResetHulls(ent)
         self:ResetJumpHeight(ent)
       end
-      if not self:DisallowViewOffsetMod() then
-         self:ResetViewOffset(ent)
-      end
+      self:ResetViewOffset(ent)
       self:ResetModelScale(ent)
       if self.validSkeleton then
         self:ResetNeck(ent)
@@ -341,6 +335,9 @@ do
       end
     end,
     ModifyViewOffset = function(self, ent)
+	if self:DisallowViewOffsetMod() then
+	  return
+	end
       if ent == nil then
         ent = self:GetEntity()
       end
@@ -361,7 +358,7 @@ do
       if ent.SetViewOffsetDucked then
         return ent:SetViewOffsetDucked(PLAYER_VIEW_OFFSET_DUCK)
       end
-    end,
+	end,
     ModifyModelScale = function(self, ent)
       if ent == nil then
         ent = self:GetEntity()
@@ -413,9 +410,7 @@ do
         self:ModifyHull(ent)
         self:ModifyJumpHeight(ent)
       end
-      if not self:DisallowViewOffsetMod() then
-         self:ModifyViewOffset(ent)
-      end
+      self:ModifyViewOffset(ent)
       self:ModifyModelScale(ent)
       if CLIENT and self.lastPAC3BoneReset < RealTimeL() then
         self:ModifyNeck(ent)
@@ -653,14 +648,59 @@ local ppm2_sv_no_viewoffset_mod
 ppm2_sv_no_viewoffset_mod = function()
   local AVOM = GetConVar( "ppm2_sv_no_viewoffset_mod" )
   if tobool(AVOM)  then
-     for k,v in pairs(player.GetAll()) do
-       v:SetViewOffset(Vector( 0,0,64 ))
-       v:SetViewOffsetDucked(Vector( 0,0,28 ))
+     for nop,PE in pairs(player.GetAll()) do
+       PE:SetViewOffset(PPM2.PLAYER_VIEW_OFFSET_ORIGINAL)
+       PE:SetViewOffsetDucked(PPM2.PLAYER_VIEW_OFFSET_DUCK_ORIGINAL)
      end
   end
 end
-cvars.AddChangeCallback('ppm2_sv_no_viewoffset_mod', ppm2_sv_no_viewoffset_mod, '')
+local ppm2_sv_newhull
+ppm2_sv_newhull = function()
+  local NH = GetConVar( "ppm2_sv_newhull" )
+  if not tobool(NH) then
+    for nop,PE in pairs(player.GetAll()) do
+	  PE:ResetHull()
+	  PE:SetStepSize(20)
+	  PE.__ppm2_modified_hull = false
+	  PE:SetJumpPower(200)
+	  PE.__ppm2_modified_jump = false
+     end
+  end
+end
+local des = "Do sth to make you more pony?\n0 - disable Hull and ViewOffset mod once\n1 - Enable Hull But disable ViewOffset mod once(default config)\n2 - Enable hull and ViewOffset mod once(OG PPM2)"
+concommand.Add("isrealpony",
+function(ply,cmd,args,argStr)
+ local vo = GetConVar( "ppm2_sv_no_viewoffset_mod" )
+ local hl = GetConVar( "ppm2_sv_newhull" )
+ local num = tonumber(argStr) 
+ if not num then
+     print("Unregonized mode",num)
+     return
+ end
+ if num > 2 or num < 0 then
+    print("Unregonized mode",num)
+	return
+ end
+  if num == 0 then
+    vo:SetString("1")
+	hl:SetString("0")
+  end
+  if num == 1 then
+    vo:SetString("1")
+	hl:SetString("1")
+  end
+  if num == 2 then
+    vo:SetString("0")
+	hl:SetString("1")
+  end
+  for nop,PE in pairs(player.GetAll()) do
+  PE:ConCommand("ppm2_reload")
+  end
+end
+,nil,des,{FCVAR_SERVER_CAN_EXECUTE})
+cvars.AddChangeCallback('ppm2_sv_no_viewoffset_mod', ppm2_sv_no_viewoffset_mod, 'PPM.VO')
 cvars.AddChangeCallback('ppm2_sv_allow_resize', ppm2_sv_allow_resize, 'PPM2.Scale')
+cvars.AddChangeCallback('ppm2_sv_newhull', ppm2_sv_newhull, 'PPM.NH')
 PPM2.GetSizeController = function(model)
   if model == nil then
     model = 'models/ppm/player_default_base.mdl'
