@@ -656,14 +656,15 @@ ppm2_sv_no_viewoffset_mod = function()
 end
 local ppm2_sv_newhull
 ppm2_sv_newhull = function()
-  local NH = GetConVar( "ppm2_sv_newhull" )
-  if not tobool(NH) then
+  local NH = GetConVar( "ppm2_sv_newhull" ):GetString()
+  if  tobool(NH) == false then
     for nop,PE in pairs(player.GetAll()) do
 	  PE:ResetHull()
 	  PE:SetStepSize(20)
 	  PE.__ppm2_modified_hull = false
 	  PE:SetJumpPower(200)
 	  PE.__ppm2_modified_jump = false
+	  PE:PrintMessage(HUD_PRINTTALK,"reseted model related player parameters")
      end
   end
 end
